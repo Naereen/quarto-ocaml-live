@@ -5,3 +5,9 @@
 *~
 
 /.luarc.json
+
+# Examples
+example.html
+example.pdf
+example.synctex.gz
+example.py

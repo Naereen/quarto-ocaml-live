@@ -1,0 +1,48 @@
+---
+title: "quarto-ocaml-live Interactive Examples"
+jupyter: ocaml-jupyter-4.14.1
+filters:
+  - quarto-ocaml-live.lua
+---
+
+# Exemples de code OCaml non-interactif puis interactif (expérimentation en cours)
+
+## Exemple de code OCaml non-interactif
+
+Voici une fonction récursive terminale :
+
+```ocaml
+let rec factorielle_aux acc n =
+  if n = 0 then acc
+  else factorielle_aux (acc * n) (n - 1)
+;;
+
+let factorielle = factorielle_aux 1;;
+
+Printf.printf "La factorielle de 5 est %d\n" (factorielle 5);;
+```
+
+Normalement, cette page web HTML ou ce document PDF devrait contenir à la fois l'entrée et la sortie du bloc de code précédent.
+
+---
+
+## Exemple de code OCaml interactif (expérimental)
+
+Voici une fonction récursive terminale :
+
+```ocaml
+(**| echo: true*)
+(**| eval: true*)
+let rec factorielle_aux acc n =
+  if n = 0 then acc
+  else factorielle_aux (acc * n) (n - 1)
+;;
+
+let factorielle = factorielle_aux 1;;
+
+Printf.printf "La factorielle de 5 est %d\n" (factorielle 5);;
+```
+
+Normalement, cette page web HTML ou ce document PDF devrait contenir à la fois l'entrée et la sortie du bloc de code précédent.
+
+Mais cette fois-ci, la version page web HTML devrait inclure une cellule de code modifiable, que le visiteur du site web peut éditer et exécuter à la demande !
