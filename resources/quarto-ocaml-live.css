@@ -1,0 +1,49 @@
+.ocaml-live-cell {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin: 1.5em 0;
+    background-color: #f8f9fa;
+    overflow: hidden;
+}
+
+.ocaml-live-controls {
+    padding: 6px 12px;
+    background-color: #f1f3f5;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ocaml-live-run-btn {
+    background-color: #0275d8;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.ocaml-live-run-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.ocaml-live-output-container pre {
+    margin: 0;
+    padding: 10px 15px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+.ocaml-live-stdout {
+    color: #212529;
+    white-space: pre-wrap;
+}
+
+.ocaml-live-stderr {
+    color: #d9534f;
+    white-space: pre-wrap;
+}
