@@ -1,86 +1,112 @@
-import * as Comlink from "https://unpkg.com/comlink/dist/esm/comlink.mjs";
+// En tant que module ES, import.meta.url pointe TOUJOURS vers l'emplacement réel 
+// de ce fichier ocaml-live.js (y compris dans les dossiers site_libs/ de Quarto).
+const workerPath = new URL("ocaml-worker-bundled.js", import.meta.url).href;
 
-let kernelInstance = null;
-let isKernelReady = false;
+console.log("Chemin absolu résolu pour le worker OCaml :", workerPath);
 
-// Initialisation globale du worker OCaml
-async function initOCamlKernel() {
-    try {
-        console.log("[Quarto OCaml] Chargement du worker OCaml...");
-        // Chemin relatif ajusté pour Quarto
-        const worker = new Worker("resources/ocaml-worker-bundled.js", { type: "module" });
-        
-        // Connexion au worker via Comlink
-        const KernelClassOrInstance = Comlink.wrap(worker);
-        
-        // Selon la stratégie choisie (instance directe ou classe)
-        if (typeof KernelClassOrInstance === 'function') {
-            kernelInstance = await new KernelClassOrInstance();
-        } else {
-            kernelInstance = KernelClassOrInstance;
+document.addEventListener("DOMContentLoaded", async () => {
+    const cells = document.querySelectorAll(".ocaml-live-cell");
+    if (cells.length === 0) return;
+
+    let kernel = null;
+    
+    // Indiquer l'état de chargement sur les boutons
+    cells.forEach(cell => {
+        const btn = cell.querySelector(".ocaml-live-run-btn");
+        if (btn) {
+            btn.textContent = "Chargement du noyau OCaml...";
+            btn.disabled = true;
         }
+    });
 
-        if (kernelInstance.init) await kernelInstance.init();
-        else if (kernelInstance.start) await kernelInstance.start();
-
-        isKernelReady = true;
-        console.log("[Quarto OCaml] Noyau OCaml prêt !");
+    try {
+        console.log("Tentative d'instanciation du Web Worker...");
+        // On passe l'URL absolue résolue via import.meta.url
+        kernel = new Worker(workerPath, { type: "module" });
         
-        // Activer tous les boutons d'exécution dans la page
-        document.querySelectorAll(".ocaml-live-run-btn").forEach(btn => {
-            btn.textContent = "Exécuter (Ctrl+Entrée)";
-            btn.disabled = false;
+        let resolveReady = null;
+        const readyPromise = new Promise((resolve, reject) => {
+            resolveReady = resolve;
+            // Timeout de sécurité de 15 secondes
+            setTimeout(() => {
+                reject(new Error("Temps d'attente dépassé pour l'initialisation du noyau OCaml (Timeout)."));
+            }, 15000);
         });
-    } catch (err) {
-        console.error("[Quarto OCaml] Échec d'initialisation du noyau :", err);
-        document.querySelectorAll(".ocaml-live-run-btn").forEach(btn => {
-            btn.textContent = "Erreur d'initialisation";
-        });
-    }
-}
 
-// Attacher le comportement interactif à chaque cellule
-function setupCells() {
-    document.querySelectorAll(".ocaml-live-cell").forEach(cell => {
-        const sourceTextarea = cell.querySelector(".ocaml-live-source");
-        const runBtn = cell.querySelector(".ocaml-live-run-btn");
-        const stdoutNode = cell.querySelector(".ocaml-live-stdout");
-        const stderrNode = cell.querySelector(".ocaml-live-stderr");
-
-        // Fonction d'exécution de la cellule
-        const executeCell = async () => {
-            if (!isKernelReady || !kernelInstance) return;
-
-            stdoutNode.textContent = "";
-            stderrNode.textContent = "";
-            runBtn.disabled = true;
-            runBtn.textContent = "Évaluation...";
-
-            const code = sourceTextarea.value;
-
-            try {
-                const res = await kernelInstance.eval(code);
-                
-                if (typeof res === 'object' && res !== null) {
-                    if (res.stdout) stdoutNode.textContent = res.stdout;
-                    if (res.stderr) stderrNode.textContent = res.stderr;
-                    if (!res.stdout && !res.stderr) stdoutNode.textContent = JSON.stringify(res, null, 2);
-                } else {
-                    stdoutNode.textContent = res;
-                }
-            } catch (e) {
-                stderrNode.textContent = "Erreur d'exécution : " + e.message;
-            } finally {
-                runBtn.disabled = false;
-                runBtn.textContent = "Exécuter (Ctrl+Entrée)";
+        kernel.onmessage = function(event) {
+            const data = event.data;
+            console.log("Message reçu du worker OCaml :", data);
+            if (data && (data.status === "ready" || data.ready === true)) {
+                resolveReady();
             }
         };
 
-        runBtn.addEventListener("click", executeCell);
-    });
-}
+        kernel.onerror = function(error) {
+            console.error("Erreur interceptée dans le Web Worker OCaml :", error);
+        };
 
-document.addEventListener("DOMContentLoaded", () => {
-    setupCells();
-    initOCamlKernel();
+        await readyPromise;
+        console.log("Noyau OCaml chargé et prêt avec succès !");
+
+        // Initialisation de CodeMirror et des cellules interactives
+        cells.forEach(cell => {
+            const btn = cell.querySelector(".ocaml-live-run-btn");
+            const textarea = cell.querySelector(".ocaml-live-source");
+            const stdoutPre = cell.querySelector(".ocaml-live-stdout");
+            const stderrPre = cell.querySelector(".ocaml-live-stderr");
+
+            if (!btn || !textarea) return;
+
+            // Transformation du textarea en instance CodeMirror (mode OCaml / mllike)
+            const editor = CodeMirror.fromTextArea(textarea, {
+                mode: "mllike",
+                lineNumbers: true,
+                indentUnit: 2,
+                tabSize: 2,
+                matchBrackets: true,
+                autoCloseBrackets: true,
+                lineWrapping: true
+            });
+
+            btn.textContent = "Exécuter";
+            btn.disabled = false;
+
+            btn.addEventListener("click", async () => {
+                const code = editor.getValue();
+                
+                btn.disabled = true;
+                btn.textContent = "Exécution...";
+                if (stdoutPre) stdoutPre.textContent = "";
+                if (stderrPre) stderrPre.textContent = "";
+
+                const executionId = Math.random().toString(36).substring(7);
+                
+                const messageHandler = function(e) {
+                    const msg = e.data;
+                    if (msg && msg.id === executionId) {
+                        if (msg.stdout && stdoutPre) stdoutPre.textContent += msg.stdout;
+                        if (msg.stderr && stderrPre) stderrPre.textContent += msg.stderr;
+                        if (msg.done) {
+                            kernel.removeEventListener("message", messageHandler);
+                            btn.disabled = false;
+                            btn.textContent = "Exécuter";
+                        }
+                    }
+                };
+
+                kernel.addEventListener("message", messageHandler);
+                kernel.postMessage({ id: executionId, code: code });
+            });
+        });
+
+    } catch (error) {
+        console.error("Erreur critique lors du chargement du noyau Basthon OCaml :", error);
+        cells.forEach(cell => {
+            const btn = cell.querySelector(".ocaml-live-run-btn");
+            if (btn) {
+                btn.textContent = "Erreur de chargement du noyau";
+                btn.style.backgroundColor = "#dc2626";
+            }
+        });
+    }
 });
