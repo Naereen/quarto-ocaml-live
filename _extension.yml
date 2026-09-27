@@ -1,0 +1,25 @@
+title: quarto-ocaml-live
+author: Lilian Besson
+version: 0.0.1
+quarto-required: ">=1.10.0"
+contributes:
+  # 1. Déclaration du filtre Lua
+  filters:
+    - quarto-ocaml-live.lua
+  # 2. Injection des ressources Web dans les documents HTML rendus
+  html:
+    css:
+      - resources/quarto-ocaml-live.css
+    scripts:
+      - path: resources/quarto-ocaml-live.js
+        type: module
+    resources:
+      - resources/ocaml-worker-bundled.js
+      - resources/__kernel__.js
+  format:
+    html:
+      html-math-method: katex
+      include-in-header:
+        - text: |
+            <script src="resources/quarto-ocaml-live.js" type="module"></script>
+            <link rel="stylesheet" href="resources/quarto-ocaml-live.css">

@@ -3,3 +3,5 @@
 *_files/
 *.gz
 *~
+
+/.luarc.json
