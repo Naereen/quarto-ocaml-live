@@ -11,7 +11,7 @@ filters:
 
 Voici une fonction récursive terminale :
 
-```ocaml
+```{ocaml}
 let rec factorielle_aux acc n =
   if n = 0 then acc
   else factorielle_aux (acc * n) (n - 1)
@@ -30,7 +30,7 @@ Normalement, cette page web HTML ou ce document PDF devrait contenir à la fois 
 
 Voici une fonction récursive terminale :
 
-```ocaml
+```{ocaml}
 (**| echo: true*)
 (**| eval: true*)
 let rec factorielle_aux acc n =

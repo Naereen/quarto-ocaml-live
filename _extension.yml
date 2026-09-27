@@ -7,17 +7,17 @@ contributes:
   filters:
     - quarto-ocaml-live.lua
   # 2. Injection des ressources Web dans les documents HTML rendus
-  html:
-    css:
-      - resources/quarto-ocaml-live.css
-    scripts:
-      - path: resources/quarto-ocaml-live.js
-        type: module
-    resources:
-      - resources/ocaml-worker-bundled.js
-      - resources/__kernel__.js
   format:
-    html:
+    live-html:
+      output-format: html
+      css:
+        - resources/quarto-ocaml-live.css
+      scripts:
+        - path: resources/quarto-ocaml-live.js
+          type: module
+      resources:
+        - resources/ocaml-worker-bundled.js
+        - resources/__kernel__.js
       html-math-method: katex
       include-in-header:
         - text: |
