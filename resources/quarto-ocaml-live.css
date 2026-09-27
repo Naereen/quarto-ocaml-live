@@ -1,49 +1,78 @@
 .ocaml-live-cell {
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    margin: 1.5em 0;
-    background-color: #f8f9fa;
+    margin: 1.5rem 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    background-color: #f8fafc;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     overflow: hidden;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+.ocaml-live-editor-container {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Surcharge et personnalisation de l'éditeur CodeMirror */
+.CodeMirror {
+    height: auto !important;
+    min-height: 90px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.CodeMirror-scroll {
+    min-height: 90px;
+    max-height: 400px;
 }
 
 .ocaml-live-controls {
-    padding: 6px 12px;
-    background-color: #f1f3f5;
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
     display: flex;
     justify-content: flex-end;
+    padding: 0.5rem 0.75rem;
+    background-color: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .ocaml-live-run-btn {
-    background-color: #0275d8;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85em;
+    background-color: #0284c7;
+    color: #ffffff;
     font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.4rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.ocaml-live-run-btn:hover:not(:disabled) {
+    background-color: #0369a1;
 }
 
 .ocaml-live-run-btn:disabled {
-    background-color: #6c757d;
+    background-color: #94a3b8;
     cursor: not-allowed;
 }
 
-.ocaml-live-output-container pre {
-    margin: 0;
-    padding: 10px 15px;
-    font-family: monospace;
-    font-size: 0.9em;
+.ocaml-live-output-container {
+    padding: 0.75rem 1rem;
+    background-color: #0f172a;
+    color: #f8fafc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
 .ocaml-live-stdout {
-    color: #212529;
-    white-space: pre-wrap;
+    margin: 0;
+    color: #38bdf8;
 }
 
 .ocaml-live-stderr {
-    color: #d9534f;
-    white-space: pre-wrap;
+    margin: 0;
+    color: #f87171;
 }
