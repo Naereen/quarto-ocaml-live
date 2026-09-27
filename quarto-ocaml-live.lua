@@ -5,12 +5,12 @@ function Pandoc(doc)
         name = "quarto-ocaml-live",
         version = "0.1.0",
         stylesheets = {
-          "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css",
+          "resources/codemirror.min.css",
           "resources/quarto-ocaml-live.css"
         },
         scripts = {
-          "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js",
-          "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/mllike/mllike.min.js",
+          "resources/codemirror.min.js",
+          "resources/mllike.min.js",
           { path = "resources/quarto-ocaml-live.js", type = "module" }
         }
     })
