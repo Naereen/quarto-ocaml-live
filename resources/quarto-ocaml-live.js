@@ -1,11 +1,22 @@
 // quarto-ocaml-live.js : Version combinée CodeMirror et Worker OCaml non bloquant
 
 // 1. Résolution robuste du chemin du worker (fonctionne parfaitement avec les site_libs de Quarto)
+const trimBlankLines = text => text.replace(/^(?:[ \t]*\r?\n)+|(?:\r?\n[ \t]*)+$/g, "");
+
 document.addEventListener("DOMContentLoaded", () => {
     const cells = document.querySelectorAll(".ocaml-live-cell");
     if (cells.length === 0) return;
 
-        // Transformation des cellules HTML en éditeurs interactifs CodeMirror
+    // Hide Jupyter-rendered outputs adjacent to live cells; Basthon owns their output.
+    cells.forEach(cell => {
+        let sibling = cell.nextElementSibling;
+        while (sibling && sibling.matches(".cell-output, .cell-output-display, .cell-output-stdout, .cell-output-stderr")) {
+            sibling.hidden = true;
+            sibling = sibling.nextElementSibling;
+        }
+    });
+
+    // Transformation des cellules HTML en éditeurs interactifs CodeMirror
     cells.forEach(cell => {
         const btn = cell.querySelector(".ocaml-live-run-btn");
         const textarea = cell.querySelector(".ocaml-live-source");
@@ -33,7 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
             // Attend le kernel Basthon et relaie les flux de sortie de l'évaluation.
         btn.addEventListener("click", async () => {
             const code = editor.getValue();
-            
+            let stdoutOutput = "";
+            let stderrOutput = "";
+
             btn.disabled = true;
             btn.textContent = "Exécution...";
             if (stdoutPre) stdoutPre.textContent = "";
@@ -49,15 +62,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const [result] = await kernel.evalAsync(
                     code,
-                    text => { if (stdoutPre) stdoutPre.textContent += text; },
-                    text => { if (stderrPre) stderrPre.textContent += text; },
+                    text => {
+                        stdoutOutput += text;
+                        if (stdoutPre) stdoutPre.textContent = trimBlankLines(stdoutOutput);
+                    },
+                    text => {
+                        stderrOutput += text;
+                        if (stderrPre) stderrPre.textContent = trimBlankLines(stderrOutput);
+                    },
                     {}
                 );
                 if (result?.["text/plain"] && stdoutPre) {
-                    stdoutPre.textContent += result["text/plain"] + "\n";
+                    stdoutOutput += result["text/plain"] + "\n";
+                    stdoutPre.textContent = trimBlankLines(stdoutOutput);
                 }
             } catch (error) {
-                if (stderrPre) stderrPre.textContent += `Erreur d'exécution : ${error.message}\n`;
+                stderrOutput += `Erreur d'exécution : ${error.message}\n`;
+                if (stderrPre) stderrPre.textContent = trimBlankLines(stderrOutput);
             } finally {
                 btn.disabled = false;
                 btn.textContent = "Exécuter";
