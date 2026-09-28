@@ -22,6 +22,10 @@ Le kernel Basthon est initialisé de façon asynchrone via son API principale et
 
 Voir [example.qmd](example.qmd) pour un exemple de document.
 
+## Demonstration
+
+![Demonstration of OCaml-live Extension for Quarto](screenshots-demonstration/demonstration1.png)
+
 ----
 
 ## :scroll: License ? [![GitHub license](https://img.shields.io/github/license/Naereen/quarto-ocaml-live.svg)](https://github.com/Naereen/quarto-ocaml-live/blob/master/LICENSE)
