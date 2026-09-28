@@ -1,0 +1,45 @@
+{
+  "name": "@basthon/kernel-ocaml",
+  "version": "0.78.6",
+  "description": "Basthon - OCaml Kernel",
+  "homepage": "https://basthon.fr",
+  "bugs": {
+    "url": "https://forge.apps.education.fr/basthon/basthon-kernel/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://forge.apps.education.fr/basthon/basthon-kernel.git"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "Romain Casati",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib/"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "yarn build:dune && yarn build:ts && yarn build:terser",
+    "build:dune": "cd src/ocaml && dune build --profile=release && install --mode=u+rw _build/default/__kernel__.js ../ && dune clean",
+    "build:ts": "tsc",
+    "build:terser": "terser src/__kernel__.js -c -m -o lib/__kernel__.js",
+    "build:demo": "esbuild demo.js --bundle --format=esm --platform=browser --define:globalThis=self --outfile=dist/demo.js && esbuild lib/comlink-worker.js --bundle --format=iife --platform=browser --define:globalThis=self --define:import.meta.url=self._assetsURL --outfile=dist/comlink-worker.js && esbuild node_modules/@basthon/kernel-base/lib/worker/comlink-proxy.js --bundle --format=iife --platform=browser --define:globalThis=self --outfile=dist/comlink-proxy.js && cp lib/__kernel__.js dist/__kernel__.js",
+    "clean": "rimraf lib/ src/__kernel__.js"
+  },
+  "dependencies": {
+    "@basthon/kernel-base": "0.78.6",
+    "constants-browserify": "^1.0.0",
+    "tty-browserify": "^0.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "rimraf": "^6.0.1",
+    "terser": "^5.44.0",
+    "typescript": "^5.9.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
