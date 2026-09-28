@@ -11,13 +11,16 @@ function Pandoc(doc)
         scripts = {
           "resources/codemirror.min.js",
           "resources/mllike.min.js",
-          { path = "resources/quarto-ocaml-live.js", type = "module" }
+          { path = "resources/basthon-kernel-ocaml/dist/demo.js", attribs = { type = "module" } },
+          { path = "resources/quarto-ocaml-live.js", attribs = { type = "module" } }
         }
     })
 
     -- IMPORTANT : On attache le Web Worker pour que Quarto le copie dans le lib dir
-    quarto.doc.attach_to_dependency("quarto-ocaml-live", "resources/ocaml-worker-bundled.js")
-    quarto.doc.attach_to_dependency("quarto-ocaml-live", "resources/__kernel__.js")
+    -- Basthon's main-thread client starts the Comlink worker and its proxy.
+    quarto.doc.attach_to_dependency("quarto-ocaml-live", "resources/basthon-kernel-ocaml/dist/comlink-worker.js")
+    quarto.doc.attach_to_dependency("quarto-ocaml-live", "resources/basthon-kernel-ocaml/dist/comlink-proxy.js")
+    quarto.doc.attach_to_dependency("quarto-ocaml-live", "resources/basthon-kernel-ocaml/dist/__kernel__.js")
 
     return doc
 end
