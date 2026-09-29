@@ -6,6 +6,7 @@ const trimBlankLines = text => text.replace(/^(?:[ \t]*\r?\n)+|(?:\r?\n[ \t]*)+$
 document.addEventListener("DOMContentLoaded", () => {
     const cells = document.querySelectorAll(".ocaml-live-cell");
     if (cells.length === 0) return;
+    const cellOutputs = new Map();
 
     // Hide Jupyter-rendered outputs adjacent to live cells; Basthon owns their output.
     cells.forEach(cell => {
@@ -44,8 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // Attend le kernel Basthon et relaie les flux de sortie de l'évaluation.
         btn.addEventListener("click", async () => {
             const code = editor.getValue();
-            let stdoutOutput = "";
-            let stderrOutput = "";
+            const output = { stdout: "", stderr: "" };
+            cellOutputs.set(cell.id, output);
 
             btn.disabled = true;
             btn.textContent = "Exécution...";
@@ -60,25 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     throw new Error(detail || "Le kernel OCaml n'a pas pu démarrer.");
                 }
 
-                const [result] = await kernel.evalAsync(
-                    code,
-                    text => {
-                        stdoutOutput += text;
-                        if (stdoutPre) stdoutPre.textContent = trimBlankLines(stdoutOutput);
-                    },
-                    text => {
-                        stderrOutput += text;
-                        if (stderrPre) stderrPre.textContent = trimBlankLines(stderrOutput);
-                    },
-                    {}
-                );
+                const [result] = await kernel.evalAsync(code, () => {}, () => {}, {
+                    ocamlLiveCellId: cell.id
+                });
                 if (result?.["text/plain"] && stdoutPre) {
-                    stdoutOutput += result["text/plain"] + "\n";
-                    stdoutPre.textContent = trimBlankLines(stdoutOutput);
+                    output.stdout += result["text/plain"] + "\n";
+                    stdoutPre.textContent = trimBlankLines(output.stdout);
                 }
             } catch (error) {
-                stderrOutput += `Erreur d'exécution : ${error.message}\n`;
-                if (stderrPre) stderrPre.textContent = trimBlankLines(stderrOutput);
+                output.stderr += `Erreur d'exécution : ${error.message}\n`;
+                if (stderrPre) stderrPre.textContent = trimBlankLines(output.stderr);
             } finally {
                 btn.disabled = false;
                 btn.textContent = "Exécuter";
@@ -87,9 +79,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     window.ocamlLiveKernelReady?.then(kernel => {
-        cells.forEach(cell => {
-            const btn = cell.querySelector(".ocaml-live-run-btn");
-            if (!kernel) {
+        if (!kernel) {
+            cells.forEach(cell => {
+                const btn = cell.querySelector(".ocaml-live-run-btn");
                 const stderrPre = cell.querySelector(".ocaml-live-stderr");
                 const detail = window.ocamlLiveKernelError?.message || "Le kernel OCaml n'a pas pu démarrer.";
                 if (stderrPre) stderrPre.textContent = `Erreur d'initialisation : ${detail}\n`;
@@ -97,8 +89,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.textContent = "Kernel indisponible";
                     btn.disabled = true;
                 }
-                return;
-            }
+            });
+            return;
+        }
+
+        kernel.addEventListener("eval.output", ({ stream, content, ocamlLiveCellId }) => {
+            const output = cellOutputs.get(ocamlLiveCellId);
+            const cell = document.getElementById(ocamlLiveCellId);
+            if (!output || !cell) return;
+
+            const isStderr = stream === "stderr";
+            const key = isStderr ? "stderr" : "stdout";
+            const pre = cell.querySelector(isStderr ? ".ocaml-live-stderr" : ".ocaml-live-stdout");
+            output[key] += content;
+            if (pre) pre.textContent = trimBlankLines(output[key]);
+        });
+
+        cells.forEach(cell => {
+            const btn = cell.querySelector(".ocaml-live-run-btn");
             if (btn) {
                 btn.textContent = "Exécuter";
                 btn.disabled = false;
