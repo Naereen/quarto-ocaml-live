@@ -1,7 +1,11 @@
 # OCaml-live Extension For Quarto
 
-Cette extension pour [Quarto](https://quarto.org) transforme les blocs [OCaml](https://ocaml.org) en cellules modifiables avec [CodeMirror](https://codemirror.net), dans les sorties live-html.
-Les sorties HTML classique et PDF ne sont pas modifiées.
+Cette extension pour [Quarto](https://quarto.org) transforme les blocs [OCaml](https://ocaml.org) explicitement marqués `live: true` en cellules modifiables avec [CodeMirror](https://codemirror.net), dans son format dédié `live-html`.
+Les autres blocs restent statiques par défaut, et les sorties HTML standard, Reveal.js et PDF conservent leur comportement habituel.
+
+## TODO
+
+🇫🇷 -> 🇬🇧: Translate this README.md to English only!
 
 ----
 
@@ -19,6 +23,8 @@ If you're using version control, you will want to check in this directory.
 ## Using
 
 Le kernel Basthon est initialisé de façon asynchrone via son API principale et son worker Comlink. Les boutons d'exécution ne sont activés qu'une fois le kernel prêt; les sorties standard et d'erreur sont affichées séparément.
+
+Le format interactif est `live-html`, dérivé du format HTML de Quarto.
 
 ### Options de cellules (méta-commentaires)
 
@@ -42,8 +48,8 @@ Printf.printf "5! = %d\n" (factorielle 5);;
 
 #### Comportement des options :
 
-- `live: false` (**par défaut**) : la cellule conserve le comportement standard d'une cellule Quarto/Jupyter (évaluation statique, non-interactive dans tous les formats, y compris `live-html`).
-- `live: true` : transforme la cellule en éditeur interactif CodeMirror avec exécution dans le navigateur via Basthon (uniquement pour le format `live-html` ; reste statique pour les formats PDF, HTML standard, etc.).
+- `live: false` (**par défaut**) : la cellule conserve le comportement standard d'une cellule Quarto/Jupyter (évaluation statique et non-interactive), y compris dans `live-html`.
+- `live: true` : transforme la cellule en éditeur interactif CodeMirror avec exécution dans le navigateur via Basthon uniquement dans le format `live-html` ; reste statique dans les autres formats, comme HTML standard, Reveal.js ou PDF.
 - `autorun: false` (**par défaut**) : la cellule attend une action manuelle de l'utilisateur sur le bouton « Exécuter ».
 - `autorun: true` : dès que le noyau OCaml a terminé son chargement, les cellules marquées avec `autorun: true` s'exécutent automatiquement l'une après l'autre, de haut en bas dans l'ordre de la page.
 - `caption: "..."` (vide par défaut) : ajoute un titre/légende aligné à gauche dans la barre de contrôle de la cellule, à côté du bouton d'exécution.

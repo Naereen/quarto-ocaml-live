@@ -1,11 +1,15 @@
 ---
-title: "quarto-ocaml-live Interactive Examples"
+title: "Exemples interactifs pour quarto-ocaml-live (in French)"
 jupyter: ocaml-jupyter-4.14.1
+format:
+  html: default
+  pdf: default
+  live-html: default
 filters:
   - quarto-ocaml-live.lua
 ---
 
-# Exemples de code OCaml non-interactif puis interactif (expérimentation en cours)
+# Exemples de code OCaml non-interactif puis interactif
 
 ## Exemple de code OCaml non-interactif
 
