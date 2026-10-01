@@ -7,6 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const cells = document.querySelectorAll(".ocaml-live-cell");
     if (cells.length === 0) return;
     const cellOutputs = new Map();
+    const cellRunners = new Map();
+    const evalEnabled = cell => cell.dataset.eval !== "false";
+    const idleLabel = cell => evalEnabled(cell) ? "Exécuter" : "Exécution désactivée";
 
     // Hide Jupyter-rendered outputs adjacent to live cells; Basthon owns their output.
     cells.forEach(cell => {
@@ -26,6 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!btn || !textarea) return;
 
+        if (cell.dataset.echo === "false") {
+            const outputContainer = cell.querySelector(".ocaml-live-output-container");
+            if (outputContainer) outputContainer.hidden = true;
+        }
+
         // Initialisation de CodeMirror (mode OCaml / mllike)
         const editor = CodeMirror.fromTextArea(textarea, {
             mode: "mllike",
@@ -41,9 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.textContent = "Chargement du noyau OCaml...";
         btn.disabled = true;
 
-        // 4. Gestionnaire d'événement sur le bouton d'exécution
-            // Attend le kernel Basthon et relaie les flux de sortie de l'évaluation.
-        btn.addEventListener("click", async () => {
+        // Attend le kernel Basthon et relaie les flux de sortie de l'évaluation.
+        const runCell = async () => {
+            if (!evalEnabled(cell)) return;
             const code = editor.getValue();
             const output = { stdout: "", stderr: "" };
             cellOutputs.set(cell.id, output);
@@ -75,10 +83,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.disabled = false;
                 btn.textContent = "Exécuter";
             }
-        });
+        };
+        cellRunners.set(cell, runCell);
+        btn.addEventListener("click", runCell);
     });
 
-    window.ocamlLiveKernelReady?.then(kernel => {
+    window.ocamlLiveKernelReady?.then(async kernel => {
         if (!kernel) {
             cells.forEach(cell => {
                 const btn = cell.querySelector(".ocaml-live-run-btn");
@@ -108,9 +118,17 @@ document.addEventListener("DOMContentLoaded", () => {
         cells.forEach(cell => {
             const btn = cell.querySelector(".ocaml-live-run-btn");
             if (btn) {
-                btn.textContent = "Exécuter";
-                btn.disabled = false;
+                btn.textContent = idleLabel(cell);
+                btn.disabled = !evalEnabled(cell);
             }
         });
+
+        // Autorun cells run one after the other, in document order.
+        for (const cell of cells) {
+            const runCell = cellRunners.get(cell);
+            if (runCell && cell.dataset.autorun === "true" && evalEnabled(cell)) {
+                await runCell();
+            }
+        }
     });
 });

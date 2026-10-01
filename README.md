@@ -56,6 +56,9 @@ Printf.printf "5! = %d\n" (factorielle 5);;
 - `echo: false` : n'affiche pas les flux de sortie standard/erreur (stdout/stderr). Par défaut (`echo: true`), les sorties sont incluses.
 - `eval: false` : désactive l'évaluation de la cellule (par défaut `eval: true`).
 
+> **Remarque :** lorsque le document est exécuté par le moteur Jupyter (`jupyter: ocaml-jupyter-…`), Quarto lit lui-même les méta-commentaires `(*| … *)` : `echo` et `eval` y gardent leur sens Quarto habituel (`echo: false` masque le *code* ; utilisez `output: false` pour masquer les *sorties* statiques), et une cellule `live: true` avec `echo: false` ne peut pas être rendue interactive, faute de code source.
+> Les options `live`, `autorun` et `caption` sont transmises au filtre Lua par Quarto.
+
 Voir [example.qmd](example.qmd) pour un exemple complet de document.
 
 ## Demonstration
