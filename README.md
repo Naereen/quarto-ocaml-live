@@ -28,15 +28,15 @@ Le format interactif est `live-html`, dérivé du format HTML de Quarto.
 
 ### Options de cellules (méta-commentaires)
 
-Les options de cellules peuvent être déclarées au début d'un bloc de code OCaml sous forme de méta-commentaires `(*| clef: valeur *)` (ou `(**| clef: valeur *)`, voire `#| clef: valeur`) :
+Les options de cellules peuvent être déclarées au début d'un bloc de code OCaml sous forme de méta-commentaires `(*| clef: valeur *)` :
 
-```ocaml
+````markdown
 ```{ocaml}
 (*| live: true *)
 (*| autorun: true *)
-(*| caption: "Une factorielle récursive terminale et interactive" *)
 (*| echo: true *)
 (*| eval: true *)
+(*| caption: "Une factorielle récursive terminale et interactive" *)
 let rec factorielle_aux acc n =
   if n = 0 then acc
   else factorielle_aux (acc * n) (n - 1)
@@ -44,7 +44,7 @@ let rec factorielle_aux acc n =
 let factorielle = factorielle_aux 1;;
 Printf.printf "5! = %d\n" (factorielle 5);;
 ```
-```
+````
 
 #### Comportement des options :
 
@@ -52,7 +52,7 @@ Printf.printf "5! = %d\n" (factorielle 5);;
 - `live: true` : transforme la cellule en éditeur interactif CodeMirror avec exécution dans le navigateur via Basthon uniquement dans le format `live-html` ; reste statique dans les autres formats, comme HTML standard, Reveal.js ou PDF.
 - `autorun: false` (**par défaut**) : la cellule attend une action manuelle de l'utilisateur sur le bouton « Exécuter ».
 - `autorun: true` : dès que le noyau OCaml a terminé son chargement, les cellules marquées avec `autorun: true` s'exécutent automatiquement l'une après l'autre, de haut en bas dans l'ordre de la page.
-- `caption: "..."` (vide par défaut) : ajoute un titre/légende aligné à gauche dans la barre de contrôle de la cellule, à côté du bouton d'exécution.
+- `caption: "..."` (vide par défaut) : ajoute un titre/légende pour cette cellule, qui sera aligné à gauche dans la barre de contrôle de la cellule, à côté du bouton d'exécution.
 - `echo: false` : n'affiche pas les flux de sortie standard/erreur (stdout/stderr). Par défaut (`echo: true`), les sorties sont incluses.
 - `eval: false` : désactive l'évaluation de la cellule (par défaut `eval: true`).
 
@@ -63,7 +63,15 @@ Voir [example.qmd](example.qmd) pour un exemple complet de document.
 
 ## Demonstration
 
-![Demonstration of OCaml-live Extension for Quarto](screenshots-demonstration/demonstration1.png)
+<img alt="Demonstration 1/3 of OCaml-live Extension for Quarto" height="500" alt="Image" src="screenshots-demonstration/demonstration1.png" />
+
+Une cellule "ocaml-live" avec `autorun: true` en meta-commentaire :
+
+<img alt="Demonstration 2/3 of OCaml-live Extension for Quarto" height="600" alt="Image" src="https://github.com/user-attachments/assets/7c1c1ba5-17e4-49a5-b1eb-861414bf453c" />
+
+Une cellule "ocaml-live" sans `autorun: true` en meta-commentaire :
+
+<img alt="Demonstration 3/3 of OCaml-live Extension for Quarto" height="350" alt="Image" src="https://github.com/user-attachments/assets/f2345824-626b-40da-8899-263886fe5805" />
 
 ----
 
