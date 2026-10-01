@@ -31,8 +31,11 @@ Normalement, cette page web HTML ou ce document PDF devrait contenir à la fois 
 Voici une fonction récursive terminale :
 
 ```{ocaml}
-(**| echo: true*)
-(**| eval: true*)
+(*| echo: true *)
+(*| eval: true *)
+(*| live: true *)
+(*| autorun: true *)
+(*| caption: "Une factorielle récursive terminale et interactive" *)
 let rec factorielle_aux acc n =
   if n = 0 then acc
   else factorielle_aux (acc * n) (n - 1)
@@ -46,3 +49,14 @@ Printf.printf "La factorielle de 5 est %d\n" (factorielle 5);;
 Normalement, cette page web HTML ou ce document PDF devrait contenir à la fois l'entrée et la sortie du bloc de code précédent.
 
 Mais cette fois-ci, la version page web HTML devrait inclure une cellule de code modifiable, que le visiteur du site web peut éditer et exécuter à la demande !
+
+---
+
+## Exemple interactif sans autorun
+
+```{ocaml}
+(*| live: true *)
+(*| caption: "Calcul interactif à la demande" *)
+let double x = 2 * x;;
+Printf.printf "Double de 21 = %d\n" (double 21);;
+```
