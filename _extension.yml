@@ -1,6 +1,6 @@
 title: quarto-ocaml-live
 author: Lilian Besson
-version: 0.0.2
+version: 0.0.3
 quarto-required: ">=1.10.0"
 contributes:
   # 1. Déclaration du filtre Lua
@@ -16,6 +16,8 @@ contributes:
         - path: resources/quarto-ocaml-live.js
           type: module
       resources:
+        - resources/comlink-proxy.js
+        - resources/comlink-worker.js
         - resources/ocaml-worker-bundled.js
         - resources/__kernel__.js
       html-math-method: katex

@@ -1,17 +1,26 @@
 ---
-title: "Exemples interactifs pour quarto-ocaml-live (in French)"
+title: "Test de mon extension « quarto-ocaml-live »"
+abstract: "Cette courte page présente une nouvelle fonctionnalité interactive pour le code OCaml, développée avec Quarto et mon extension quarto-ocaml-live (<https://github.com/Naereen/quarto-ocaml-live>), spécialement écrite pour ce besoin !"
 jupyter: ocaml-jupyter-4.14.1
 format:
   html: default
   pdf: default
   live-html: default
 filters:
-  - quarto-ocaml-live.lua
+  - quarto-ocaml-live
 ---
 
 # Exemples de code OCaml non-interactif puis interactif
 
+Il faut écrire du code OCaml entre triple backticks \`\`\`{ocaml} et \`\`\` pour fermer le bloc.
+
+---
+
 ## Exemple de code OCaml non-interactif
+
+::: {.caption-warning}
+Actuellement, ces cellules sont *toutes* interactives dans la version HTML, mais elles ne le sont pas dans la version PDF, comme prévu pour les PDF.
+:::
 
 Voici une fonction récursive terminale :
 
@@ -22,15 +31,18 @@ let rec factorielle_aux acc n =
 ;;
 
 let factorielle = factorielle_aux 1;;
+factorielle;;
 
 Printf.printf "La factorielle de 5 est %d\n" (factorielle 5);;
+
+assert(factorielle 5 = 120);;
 ```
 
 Normalement, cette page web HTML ou ce document PDF devrait contenir à la fois l'entrée et la sortie du bloc de code précédent.
 
 ---
 
-## Exemple de code OCaml interactif (expérimental)
+## Exemple de code OCaml interactif (expérimental, en cours)
 
 Voici une fonction récursive terminale :
 
@@ -46,17 +58,48 @@ let rec factorielle_aux acc n =
 ;;
 
 let factorielle = factorielle_aux 1;;
+factorielle;;
 
 Printf.printf "La factorielle de 5 est %d\n" (factorielle 5);;
+
+assert(factorielle 5 = 120);;
 ```
 
 Normalement, cette page web HTML ou ce document PDF devrait contenir à la fois l'entrée et la sortie du bloc de code précédent.
 
 Mais cette fois-ci, la version page web HTML devrait inclure une cellule de code modifiable, que le visiteur du site web peut éditer et exécuter à la demande !
 
+La cellule précédente a été écrite ainsi, dans le fichier Quarto Markdown initial :
+
+````markdown
+```{ocaml}
+(*| echo: true *)
+(*| eval: true *)
+(*| live: true *)
+(*| autorun: true *)
+(*| caption: "Une factorielle récursive terminale et interactive" *)
+let rec factorielle_aux acc n =
+  if n = 0 then acc
+  else factorielle_aux (acc * n) (n - 1)
+;;
+
+let factorielle = factorielle_aux 1;;
+factorielle;;
+
+Printf.printf "La factorielle de 5 est %d\n" (factorielle 5);;
+
+assert(factorielle 5 = 120);;
+```
+````
+
 ---
 
 ## Exemple interactif sans autorun
+
+Cette cellule interactive ne s'exécutera pas automatiquement ; l'utilisateur doit cliquer sur le bouton « Exécuter » pour voir le résultat.
+La sortie n'est jamais calculée avant cette exécution déclenchée par le visiteur de la page web, contrairement aux cellules avec `autorun: true`.
+
+En mode PDF ou dans les autres formats statiques, cette cellule sera rendue comme un bloc de code standard, sans interactivité, mais avec la sortie affichée correctement, après la cellule de code.
 
 ```{ocaml}
 (*| live: true *)
@@ -64,3 +107,4 @@ Mais cette fois-ci, la version page web HTML devrait inclure une cellule de code
 let double x = 2 * x;;
 Printf.printf "Double de 21 = %d\n" (double 21);;
 ```
+
